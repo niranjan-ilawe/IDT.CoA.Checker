@@ -28,6 +28,7 @@ library(shinydashboard)
 library(shiny)
 library(DT)
 
+
 ui <- dashboardPage(
   dashboardHeader(title = "IDT CoA Checker"),
   dashboardSidebar(
@@ -48,7 +49,7 @@ ui <- dashboardPage(
                             accept = c(".csv")),
                   fileInput("order_file", "Upload Order File",
                             multiple = FALSE,
-                            accept = c(".xlsx")),
+                            accept = c(".xlsx", ".csv")),
                   actionButton("check_coa", "Check")
                 ),
                 box(width = 9,
