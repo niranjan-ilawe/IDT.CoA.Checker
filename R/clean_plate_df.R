@@ -6,7 +6,7 @@ clean_plate_df <- function(df) {
     # compress the sequences i.e. remove all spaces
     dplyr::mutate(sequence = stringr::str_replace_all(sequence, " ", ""),
                   # replace (N1) by (N)
-                  sequence = stringr::str_replace_all(sequence, "1", ""),
+                  sequence = stringr::str_replace_all(sequence, "N1", "N"),
                   # replace brackets
                   # sequence = stringr::str_replace_all(sequence, "\\(|\\)", "")) %>%
     ) %>%
