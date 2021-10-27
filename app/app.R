@@ -49,7 +49,7 @@ ui <- dashboardPage(
                             accept = c(".csv")),
                   fileInput("order_file", "Upload Order File",
                             multiple = FALSE,
-                            accept = c(".xlsx", ".csv")),
+                            accept = c(".xlsx")),
                   actionButton("check_coa", "Check")
                 ),
                 box(width = 9,
@@ -139,12 +139,7 @@ server <- function(input, output) {
   data <- reactive({
     req(input$raw_coa_file)
 
-    ext <- tools::file_ext(input$raw_coa_file$name)
-    switch(ext,
-           csv = vroom::vroom(input$raw_coa_file$datapath, delim = ","),
-           tsv = vroom::vroom(input$raw_coa_file$datapath, delim = "\t"),
-           validate("Invalid file; Please upload a .csv or .tsv file")
-    )
+    read_coa_file(input$raw_coa_file$datapath)
   })
 
   # create join
