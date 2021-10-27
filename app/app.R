@@ -26,6 +26,7 @@ source("/Users/niranjan.ilawe/Documents/GitHub/IDT.CoA.Checker/R/read_order_file
 
 library(shinydashboard)
 library(shiny)
+library(shinyalert)
 library(DT)
 
 
@@ -95,6 +96,7 @@ ui <- dashboardPage(
                     h6("Only columns 'plate_name', 'well_position', 'sequence', and 'sequence_name' will be downloaded")
                 ),
                 box(width = 9,
+                    useShinyalert(),
                     h5("Filtered Data"),
                     #tableOutput('clean_coa_file'),
                     div(style = 'overflow-y: scroll', DT::dataTableOutput('clean_coa_file'))
@@ -117,6 +119,9 @@ server <- function(input, output) {
   file_data <- eventReactive(input$check_coa, {
 
     coa_df <- read_coa_file(input$coa_file$datapath)
+    if(is.null(coa_df)){
+      shinyalert("Oops!", "Could not find columns named 'plate_name', 'sequence_name', 'well_position', 'sequence' in the CoA file", type = "error")
+    }
     order_df <- read_order_file(input$order_file$datapath)
 
     list(coa_df = coa_df, order_df = order_df)
@@ -139,7 +144,13 @@ server <- function(input, output) {
   data <- reactive({
     req(input$raw_coa_file)
 
-    read_coa_file(input$raw_coa_file$datapath)
+    file_contents <- read_coa_file(input$raw_coa_file$datapath)
+
+    if(is.null(file_contents)){
+      shinyalert("Oops!", "Could not find columns named 'plate_name', 'sequence_name', 'well_position', 'sequence'", type = "error")
+    }
+
+    file_contents
   })
 
   # create join
