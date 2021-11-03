@@ -15,6 +15,6 @@ clean_plate_df <- function(df) {
     # standardizing how data is stored
     dplyr::mutate(well_row = stringr::str_extract(well_position, pattern = "[aA-zZ]"),
                   well_col = as.numeric(stringr::str_extract(well_position, pattern = "[0-9]+"))) %>%
-    dplyr::select(-well_position) %>%
+    #dplyr::select(-well_position) %>%
     dplyr::filter(!is.na(sequence))
 }
