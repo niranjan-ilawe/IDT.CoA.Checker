@@ -1,6 +1,6 @@
 Package: IDT.CoA.Checker
 Title: Package to check IDT sent CoA files against Order files
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: 
     person("Niranjan", "Ilawe", , "niranjan.ilawe@10xgenomics.com", role = c("aut", "cre"))
 Description: The package checks if the plate sequences sent by IDT match the Ordered sequences.

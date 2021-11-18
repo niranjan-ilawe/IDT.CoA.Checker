@@ -5,7 +5,7 @@ test_that("able to join passing order and coa files", {
   df <- join_sequence_files(coa_df, order_df)
 
   expect_equal(nrow(df), 1536)
-  expect_equal(df %>% dplyr::filter(is_match) %>% dplyr::pull(is_match) %>% sum(), 1536)
+  expect_equal(df %>% dplyr::filter(seq_match) %>% dplyr::pull(seq_match) %>% sum(), 1536)
 })
 
 test_that("able to join failing order and coa files", {
@@ -15,5 +15,5 @@ test_that("able to join failing order and coa files", {
   df <- join_sequence_files(coa_df, order_df)
 
   expect_equal(nrow(df), 3839)
-  expect_equal(df %>% dplyr::filter(is_match) %>% dplyr::pull(is_match) %>% sum(), 1)
+  expect_equal(df %>% dplyr::filter(seq_match) %>% dplyr::pull(seq_match) %>% sum(), 1)
 })

@@ -11,6 +11,8 @@
 # source("/mnt/home/niranjan.ilawe/ShinyApps/IDT.CoA.Checker/R/pass_by_matches.R")
 # source("/mnt/home/niranjan.ilawe/ShinyApps/IDT.CoA.Checker/R/read_coa_file.R")
 # source("/mnt/home/niranjan.ilawe/ShinyApps/IDT.CoA.Checker/R/read_order_file.R")
+# source("/mnt/home/niranjan.ilawe/ShinyApps/IDT.CoA.Checker/R/pass_by_volume.R")
+# source("/mnt/home/niranjan.ilawe/ShinyApps/IDT.CoA.Checker/R/pass_by_conc.R")
 
 ## End of Shiny Server Config ----------
 
@@ -21,6 +23,8 @@ source("/Users/niranjan.ilawe/Documents/GitHub/IDT.CoA.Checker/R/join_sequence_f
 source("/Users/niranjan.ilawe/Documents/GitHub/IDT.CoA.Checker/R/pass_by_matches.R")
 source("/Users/niranjan.ilawe/Documents/GitHub/IDT.CoA.Checker/R/read_coa_file.R")
 source("/Users/niranjan.ilawe/Documents/GitHub/IDT.CoA.Checker/R/read_order_file.R")
+source("/Users/niranjan.ilawe/Documents/GitHub/IDT.CoA.Checker/R/pass_by_volume.R")
+source("/Users/niranjan.ilawe/Documents/GitHub/IDT.CoA.Checker/R/pass_by_conc.R")
 
 ## End of Package Dev Config ------------
 
@@ -57,7 +61,9 @@ ui <- dashboardPage(
                   infoBoxOutput("coa_cnt_box"),
                   infoBoxOutput("order_cnt_box"),
                   infoBoxOutput("no_of_matches"),
-                  infoBoxOutput("pass_fail_box")
+                  infoBoxOutput("seq_fail_box"),
+                  infoBoxOutput("vol_fail_box"),
+                  infoBoxOutput("conc_fail_box")
                 )
               ),
               fluidRow(
@@ -173,21 +179,42 @@ server <- function(input, output) {
   })
   output$no_of_matches <- renderInfoBox({
     infoBox(
-      "# Matches", paste0(sum(joined_df()[['is_match']], na.rm = TRUE)), icon = icon("list"),
+      "# Matches", paste0(sum(joined_df()[['seq_match']], na.rm = TRUE)), icon = icon("list"),
       color = "navy", fill = TRUE
     )
   })
-  output$pass_fail_box <- renderInfoBox({
+  output$seq_fail_box <- renderInfoBox({
     if(pass_by_matches(joined_df())){
       infoBox(
-        "Pass", color = "green", fill = TRUE, icon = icon("thumbs-up", lib = "glyphicon"),
+        "Sequences Pass", color = "green", fill = TRUE, icon = icon("thumbs-up", lib = "glyphicon"),
       )
     } else {
       infoBox(
-        "Fail", color = "red", fill = TRUE, icon = icon("thumbs-down", lib = "glyphicon"),
+        "Sequences Fail", color = "red", fill = TRUE, icon = icon("thumbs-down", lib = "glyphicon"),
       )
     }
-
+  })
+  output$vol_fail_box <- renderInfoBox({
+    if(pass_by_volume(joined_df())){
+      infoBox(
+        "Volumes Pass", color = "green", fill = TRUE, icon = icon("thumbs-up", lib = "glyphicon"),
+      )
+    } else {
+      infoBox(
+        "Volumes Fail", color = "red", fill = TRUE, icon = icon("thumbs-down", lib = "glyphicon"),
+      )
+    }
+  })
+  output$conc_fail_box <- renderInfoBox({
+    if(pass_by_conc(joined_df())){
+      infoBox(
+        "Concentrations Pass", color = "green", fill = TRUE, icon = icon("thumbs-up", lib = "glyphicon"),
+      )
+    } else {
+      infoBox(
+        "Concentrations Fail", color = "red", fill = TRUE, icon = icon("thumbs-down", lib = "glyphicon"),
+      )
+    }
   })
 
   output$summary_tbl <- DT::renderDT(server = FALSE, {

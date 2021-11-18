@@ -1,8 +1,8 @@
 clean_plate_df <- function(df) {
-  df %>%
+  df <- df %>%
     janitor::clean_names() %>%
     # choose relevant columns
-    dplyr::select(plate_name, sequence_name, well_position, sequence) %>%
+    dplyr::select(dplyr::matches(c("plate", "well", "sequence", "conc", "volume"))) %>%
     # compress the sequences i.e. remove all spaces
     dplyr::mutate(sequence = stringr::str_replace_all(sequence, " ", ""),
                   # replace (N1) by (N)
@@ -17,4 +17,12 @@ clean_plate_df <- function(df) {
                   well_col = as.numeric(stringr::str_extract(well_position, pattern = "[0-9]+"))) %>%
     #dplyr::select(-well_position) %>%
     dplyr::filter(!is.na(sequence))
+
+  conc_name <- stringr::str_subset(colnames(df), "conc")
+  vol_name <- stringr::str_subset(colnames(df), "volume")
+  df <- df %>%
+    dplyr::rename(concentration = conc_name,
+                  volume = vol_name)
+
+  return(df)
 }
