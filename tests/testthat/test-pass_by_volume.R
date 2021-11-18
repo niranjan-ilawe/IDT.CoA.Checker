@@ -6,8 +6,8 @@ test_that("Volume Passes", {
 })
 
 test_that("Volume Fails", {
-  coa <- read_coa_file("../../data/wrong_vol_conc_coa_file.csv")
-  order <- read_order_file("../../data/wrong_vol_conc_order_file.xlsx")
+  coa <- read_coa_file("../../data/wrong_vol_coa_file.csv")
+  order <- read_order_file("../../data/wrong_vol_order_file.xlsx")
   df <- join_sequence_files(coa,order)
   expect_equal(pass_by_volume(df), FALSE)
 })

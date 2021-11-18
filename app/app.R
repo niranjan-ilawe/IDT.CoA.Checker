@@ -39,8 +39,8 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("Checker", tabName = "checker", icon = icon("dashboard")),
-      menuItem("Create CoA File", tabName = "coa_creator", icon = icon("th")),
-      menuItem("Create Order File", tabName = "order_creator", icon = icon("th"))
+      menuItem("Clean CoA File", tabName = "coa_creator", icon = icon("th")),
+      menuItem("Clean Order File", tabName = "order_creator", icon = icon("th"))
     )
   ),
   dashboardBody(
@@ -272,8 +272,7 @@ server <- function(input, output) {
     },
     content = function(con) {
       readr::write_csv(coa$df_data %>%
-                  janitor::clean_names() %>%
-                  dplyr::select(plate_name, sequence_name, well_position, sequence), con)
+                  janitor::clean_names(), con)
     }
   )
 
