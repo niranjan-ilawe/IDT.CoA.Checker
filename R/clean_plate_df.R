@@ -20,9 +20,14 @@ clean_plate_df <- function(df) {
 
   conc_name <- stringr::str_subset(colnames(df), "conc")
   vol_name <- stringr::str_subset(colnames(df), "volume")
+
   df <- df %>%
     dplyr::rename(concentration = conc_name,
-                  volume = vol_name)
+                  volume = vol_name) %>%
+    dplyr::mutate(concentration = stringr::str_extract(concentration, pattern = "[0-9]+"),
+                  concentration = as.numeric(concentration),
+                  volume = stringr::str_extract(volume, pattern = "[0-9]+"),
+                  volume = as.numeric(volume))
 
   return(df)
 }

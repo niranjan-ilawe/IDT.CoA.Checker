@@ -8,7 +8,7 @@
 #' @export
 #'
 #' @examples
-read_coa_file = function(file) {
+read_csv_file = function(file) {
 
   raw_df <- vroom::vroom(file, delim = ",", .name_repair = janitor::make_clean_names, show_col_types = FALSE)
 
@@ -16,7 +16,7 @@ read_coa_file = function(file) {
     clean_df <- clean_plate_df(raw_df)
     return(clean_df)
   } else {
-    warning('The columns in the CoA file should be named "plate_name","well_position","sequence_name","sequence"')
+    warning('Expected columns not found.')
     return(NULL)
   }
 
