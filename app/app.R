@@ -10,9 +10,10 @@
 # source("/mnt/home/niranjan.ilawe/ShinyApps/IDT.CoA.Checker/R/join_sequence_files.R")
 # source("/mnt/home/niranjan.ilawe/ShinyApps/IDT.CoA.Checker/R/pass_by_matches.R")
 # source("/mnt/home/niranjan.ilawe/ShinyApps/IDT.CoA.Checker/R/read_csv_file.R")
-# source("/mnt/home/niranjan.ilawe/ShinyApps/IDT.CoA.Checker/R/read_csv_file.R")
 # source("/mnt/home/niranjan.ilawe/ShinyApps/IDT.CoA.Checker/R/pass_by_volume.R")
 # source("/mnt/home/niranjan.ilawe/ShinyApps/IDT.CoA.Checker/R/pass_by_conc.R")
+# source("/mnt/home/niranjan.ilawe/ShinyApps/IDT.CoA.Checker/R/clean_idt_coa_file.R")
+# source("/mnt/home/niranjan.ilawe/ShinyApps/IDT.CoA.Checker/R/clean_idt_order_file.R")
 
 ## End of Shiny Server Config ----------
 
