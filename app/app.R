@@ -37,12 +37,12 @@ library(DT)
 
 
 ui <- dashboardPage(
-  dashboardHeader(title = "IDT CoA Checker"),
+  dashboardHeader(title = "CoA Checker"),
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Checker", tabName = "checker", icon = icon("dashboard")),
-      menuItem("Clean CoA File", tabName = "coa_creator", icon = icon("th")),
-      menuItem("Clean Order File", tabName = "order_creator", icon = icon("th"),badgeLabel = "new", badgeColor = "green")
+      menuItem("Checker", tabName = "checker", icon = icon("tasks")),
+      menuItem("Clean CoA File", tabName = "coa_creator", icon = icon("file-invoice")),
+      menuItem("Clean Order File", tabName = "order_creator", icon = icon("file-signature"),badgeLabel = "new", badgeColor = "green")
     )
   ),
   dashboardBody(
@@ -81,6 +81,7 @@ ui <- dashboardPage(
       tabItem(tabName = "coa_creator",
               fluidRow(
                 box(width = 3,
+                    selectInput("coa_vendor","Select Vendor", choices = c("IDT", "Eurofins")),
                     fileInput("raw_coa_file", "Upload Raw CoA File (csv or xlsx)",
                               multiple = FALSE,
                               accept = c(".csv", ".xlsx"))
@@ -116,6 +117,7 @@ ui <- dashboardPage(
       tabItem(tabName = "order_creator",
         fluidRow(
           box(width = 3,
+            selectInput("order_vendor","Select Vendor", choices = c("IDT", "Eurofins")),
             fileInput("raw_order_file", "Upload Raw Order File (xlsx)",
                       multiple = FALSE,
                       accept = c(".xlsx")),
@@ -242,8 +244,10 @@ server <- function(input, output) {
   # Create Clean CoA File
   observeEvent(input$create_coa_file, {
     tmp_df <- data()
-    for (i in 1:length(filterList$col)) {
-      tmp_df <- tmp_df %>% dplyr::filter(!!as.name(filterList$col[i]) == filterList$val[i])
+    if(length(filterList$col) > 1) {
+      for (i in 1:length(filterList$col)) {
+        tmp_df <- tmp_df %>% dplyr::filter(!!as.name(filterList$col[i]) == filterList$val[i])
+      }
     }
     coa$df_data <- tmp_df
   })

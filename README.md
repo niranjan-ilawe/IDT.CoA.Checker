@@ -13,7 +13,7 @@ v 1.0.0
 
 ![Check](img/check_coa.png)
 
-7. If anything fails, a pop message should give more information about the cause of error
+7. If anything fails, a pop-up message should give more information about the cause of error
 
 ### Assumptions
 
