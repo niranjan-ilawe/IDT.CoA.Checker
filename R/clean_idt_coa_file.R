@@ -13,7 +13,7 @@ clean_idt_coa_file = function(file) {
   ext <- tools::file_ext(file)
   raw_df <- switch(ext,
                    csv = vroom::vroom(file, delim = ",", show_col_types = FALSE),
-                   xlsx = readxl::read_excel(file,sheet = "Sheet1"),
+                   xlsx = readxl::read_excel(file),
                    validate("Invalid file; Please upload a .csv or .xlsx file")
   )
 
