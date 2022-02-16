@@ -37,7 +37,7 @@ library(DT)
 
 
 ui <- dashboardPage(
-  dashboardHeader(title = "CoA Checker"),
+  dashboardHeader(title = "CoA Checker v1.1"),
   dashboardSidebar(
     sidebarMenu(
       menuItem("Checker", tabName = "checker", icon = icon("tasks")),
