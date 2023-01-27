@@ -27,6 +27,9 @@ source("/Users/niranjan.ilawe/Documents/GitHub/IDT.CoA.Checker/R/pass_by_volume.
 source("/Users/niranjan.ilawe/Documents/GitHub/IDT.CoA.Checker/R/pass_by_conc.R")
 source("/Users/niranjan.ilawe/Documents/GitHub/IDT.CoA.Checker/R/clean_idt_coa_file.R")
 source("/Users/niranjan.ilawe/Documents/GitHub/IDT.CoA.Checker/R/clean_idt_order_file.R")
+source("/Users/niranjan.ilawe/Documents/GitHub/IDT.CoA.Checker/R/clean_euro_order_file.R")
+source("/Users/niranjan.ilawe/Documents/GitHub/IDT.CoA.Checker/R/clean_lprobe_coa_file.R")
+source("/Users/niranjan.ilawe/Documents/GitHub/IDT.CoA.Checker/R/clean_lprobe_order_file.R")
 
 ## End of Package Dev Config ------------
 
@@ -35,9 +38,8 @@ library(shiny)
 library(shinyalert)
 library(DT)
 
-
 ui <- dashboardPage(
-  dashboardHeader(title = "CoA Checker v1.1"),
+  dashboardHeader(title = "CoA Checker v1.2"),
   dashboardSidebar(
     sidebarMenu(
       menuItem("Checker", tabName = "checker", icon = icon("tasks")),
@@ -79,48 +81,18 @@ ui <- dashboardPage(
 
       # Second tab content
       tabItem(tabName = "coa_creator",
-              fluidRow(
-                box(width = 3,
-                    selectInput("coa_vendor","Select Vendor", choices = c("IDT", "Eurofins")),
-                    fileInput("raw_coa_file", "Upload Raw CoA File (csv or xlsx)",
-                              multiple = FALSE,
-                              accept = c(".csv", ".xlsx"))
-                ),
-                box(width = 6,
-                    h5("Filters Applied"),
-                    verbatimTextOutput('filter_list')
-                )
-              ),
-              fluidRow(
-                box(width = 3,
-                  selectInput("file_col",
-                              label = "Choose columns to Filter By",
-                              choices = c()),
-                    selectInput("filter_value",
-                                label = "Choose values to Filter",
-                                choices = c()),
-                    actionButton("add_to_filter", "Add to Filter"),
-                    actionButton("create_coa_file", "View Filtered Data"),
-                    h4(""),
-                    downloadButton("dl_clean_coa", "Download Filtered File")
-                    #h6("Only columns 'plate_name', 'well_position', 'sequence', and 'sequence_name' will be downloaded")
-                ),
-                box(width = 9,
-                    useShinyalert(),
-                    h5("Filtered Data"),
-                    div(style = 'overflow-y: scroll', DT::dataTableOutput('clean_coa_file'))
-                )
-              )
+              selectInput("coa_vendor","Select Vendor", choices = c("IDT", "L-Probe")),
+              uiOutput("coa_cleaner_input")
       ),
 
       # Third tab
       tabItem(tabName = "order_creator",
         fluidRow(
           box(width = 3,
-            selectInput("order_vendor","Select Vendor", choices = c("IDT", "Eurofins")),
-            fileInput("raw_order_file", "Upload Raw Order File (xlsx)",
+            selectInput("order_vendor","Select Vendor", choices = c("IDT", "L-Probe")),
+            fileInput("raw_order_file", "Upload Raw Order File",
                       multiple = FALSE,
-                      accept = c(".xlsx")),
+                      accept = c(".xlsx", ".xls")),
             selectInput("sheet_name",
                         label = "Choose Sheet Name",
                         choices = c()),
@@ -140,6 +112,61 @@ ui <- dashboardPage(
 
 server <- function(input, output) {
 
+  output$coa_cleaner_input <- renderUI({
+    if(input$coa_vendor %in% c("IDT", "Eurofins")) {
+      tagList(
+      fluidRow(
+        box(width = 3,
+            fileInput("raw_coa_file", "Upload Raw CoA File",
+                      multiple = FALSE,
+                      accept = c(".csv", ".xlsx", ".xls"))
+        ),
+        box(width = 6,
+            h5("Filters Applied"),
+            verbatimTextOutput('filter_list')
+        )
+      ),
+      fluidRow(
+        box(width = 3,
+            selectInput("file_col",
+                        label = "Choose columns to Filter By",
+                        choices = c()),
+            selectInput("filter_value",
+                        label = "Choose values to Filter",
+                        choices = c()),
+            actionButton("add_to_filter", "Add to Filter"),
+            actionButton("create_coa_file", "View Filtered Data"),
+            h4(""),
+            downloadButton("dl_clean_coa", "Download Filtered File")
+            #h6("Only columns 'plate_name', 'well_position', 'sequence', and 'sequence_name' will be downloaded")
+        ),
+        box(width = 9,
+            #useShinyalert(),
+            h5("Filtered Data"),
+            div(style = 'overflow-y: scroll', DT::dataTableOutput('clean_coa_file'))
+        )
+      ))
+    } else if (input$coa_vendor == "L-Probe") {
+      fluidRow(
+        box(width = 3,
+            fileInput("raw_coa_file1", "Upload 1st CoA File",
+                      multiple = FALSE,
+                      accept = c(".csv", ".xlsx", ".xls")),
+            fileInput("raw_coa_file2", "Upload 2nd CoA File",
+                      multiple = FALSE,
+                      accept = c(".csv", ".xlsx", ".xls")),
+            actionButton("create_coa_file", "View Filtered Data"),
+            h4(""),
+            downloadButton("dl_clean_coa", "Download Filtered File")
+        ),
+        box(width = 9,
+            #useShinyalert(),
+            h5("Filtered Data"),
+            div(style = 'overflow-y: scroll', DT::dataTableOutput('clean_coa_file'))
+        )
+      )
+    }
+  })
   ### PAGE 1 START ----------- CHECKER -------------------
 
   #Filter List
@@ -244,11 +271,13 @@ server <- function(input, output) {
   # Create Clean CoA File
   observeEvent(input$create_coa_file, {
     tmp_df <- data()
+
+    if(input$coa_vendor != "L-Probe"){
     if(length(filterList$col) > 1) {
       for (i in 1:length(filterList$col)) {
         tmp_df <- tmp_df %>% dplyr::filter(!!as.name(filterList$col[i]) == filterList$val[i])
       }
-    }
+    } }
     coa$df_data <- tmp_df
   })
 
@@ -256,7 +285,26 @@ server <- function(input, output) {
   data <- reactive({
     req(input$raw_coa_file)
 
-    file_contents <- clean_idt_coa_file(input$raw_coa_file$datapath)
+    if(input$coa_vendor == "IDT") {
+      file_contents <- clean_idt_coa_file(input$raw_coa_file$datapath)
+    } else if(input$coa_vendor == "Eurofins") {
+      file_contents <- clean_euro_coa_file(input$raw_coa_file$datapath)
+    }
+
+    if(is.null(file_contents)){
+      shinyalert("Oops!", "Could not find columns named 'plate_name', 'sequence_name', 'well_position', 'sequence'", type = "error")
+    }
+
+    file_contents
+  })
+
+  data <- reactive({
+    req(input$raw_coa_file1, input$raw_coa_file2)
+
+    if(input$coa_vendor == "L-Probe") {
+      file_contents <- clean_lprobe_coa_file(input$raw_coa_file1$datapath,
+                                             input$raw_coa_file2$datapath)
+    }
 
     if(is.null(file_contents)){
       shinyalert("Oops!", "Could not find columns named 'plate_name', 'sequence_name', 'well_position', 'sequence'", type = "error")
@@ -334,7 +382,13 @@ server <- function(input, output) {
   observeEvent(input$create_order_file, {
     req(input$raw_order_file)
 
-    order$df_data <- clean_idt_order_file(input$raw_order_file$datapath, input$sheet_name)
+    if(input$order_vendor == "IDT") {
+      order$df_data <- clean_idt_order_file(input$raw_order_file$datapath, input$sheet_name)
+    } else if(input$order_vendor == "Eurofins") {
+      order$df_data <- clean_euro_order_file(input$raw_order_file$datapath, input$sheet_name)
+    } else {
+      order$df_data <- clean_lprobe_order_file(input$raw_order_file$datapath, input$sheet_name)
+    }
 
   })
 
